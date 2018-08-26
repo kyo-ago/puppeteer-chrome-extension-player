@@ -1,0 +1,21 @@
+{
+  "name": "@kyo-ago/puppeteer-chrome-extension-player",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --config webpack.config.js --mode development",
+    "prettier": "prettier --single-quote --trailing-comma es5 --write package.json manifest.json index.js webpack.config.js lib/*.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer-core": "^1.7.0"
+  },
+  "devDependencies": {
+    "prettier": "1.14.2",
+    "webpack": "^4.17.1",
+    "webpack-cli": "^3.1.0"
+  }
+}
