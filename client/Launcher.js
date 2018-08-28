@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 const { Connection } = require('../node_modules/puppeteer-core/lib/Connection');
-const Extension = require('./Extension');
+const { default: Extension } = require('./Extension');
 const { Browser } = require('../node_modules/puppeteer-core/lib/Browser');
 const { debugError } = require('../node_modules/puppeteer-core/lib/helper');
 

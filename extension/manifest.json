@@ -2,9 +2,7 @@
   "name": "puppeteer-chrome-extension-player",
   "description": "puppeteer-chrome-extension-player",
   "version": "0.0.0",
-  "permissions": [
-    "debugger"
-  ],
+  "permissions": ["debugger"],
   "background": {
     "scripts": ["background.js"]
   },
@@ -13,6 +11,6 @@
       "matches": ["<all_urls>"],
       "js": ["hoge.js"]
     }
-   ],
-    "manifest_version": 2
+  ],
+  "manifest_version": 2
 }
