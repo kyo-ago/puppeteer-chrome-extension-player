@@ -1,8 +1,22 @@
 <!doctype html>
 <html>
 <head>
-    <script src="sandbox.js"></script>
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
+<textarea>
+const puppeteer = require('puppeteer');
+
+(async () => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.goto('https://example.com');
+  await page.screenshot({path: 'example.png'});
+
+  await browser.close();
+})();
+</textarea>
+<button>Execute</button>
+<script src="sandbox.js"></script>
 </body>
 </html>

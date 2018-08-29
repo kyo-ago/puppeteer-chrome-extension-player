@@ -246,3 +246,7 @@ chrome.runtime.onConnect.addListener((port: chrome.runtime.Port) => {
     background.close();
   });
 });
+
+chrome.browserAction.onClicked.addListener((tab) => {
+  window.open("browserAction.html", null, "width=420,height=250");
+});

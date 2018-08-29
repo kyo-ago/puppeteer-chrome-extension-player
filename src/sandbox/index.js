@@ -1,13 +1,13 @@
 window.ws = WebSocket;
 window.mime = {};
 
-const puppeteer = require('./puppeteer');
+window["require"] = (mod) => {
+    return require('./puppeteer');
+};
 
-(async () => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.goto('https://example.com');
-  await page.screenshot({ path: 'example.png' });
-
-  await browser.close();
-})();
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelector("button").addEventListener("click", () => {
+        let value = document.querySelector("textarea").value;
+        eval(value);
+    });
+});

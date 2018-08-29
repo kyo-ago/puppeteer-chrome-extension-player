@@ -47,6 +47,3 @@ window.addEventListener('message', async event => {
     port.postMessage({ type: 'send', message: event.data.message });
   }
 });
-window.onload = () => {
-  document.body.insertAdjacentText('beforeend', 'OK');
-};

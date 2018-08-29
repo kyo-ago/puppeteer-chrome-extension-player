@@ -1,0 +1,15 @@
+* {
+    margin: 0;
+}
+
+html, body, iframe {
+    height: 100%;
+}
+textarea {
+    height: 80%;
+    width: 100%;
+}
+button {
+    position: absolute;
+    right: 5px;
+}
