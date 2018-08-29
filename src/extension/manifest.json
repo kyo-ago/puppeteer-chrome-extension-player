@@ -12,5 +12,8 @@
       "js": ["hoge.js"]
     }
   ],
+  "sandbox": {
+    "pages": ["sandbox.html"]
+  },
   "manifest_version": 2
 }

@@ -1,4 +1,4 @@
-const { helper } = require('../node_modules/puppeteer-core/lib/helper');
+const { helper } = require('../../node_modules/puppeteer-core/lib/helper');
 const Launcher = require('./Launcher');
 
 module.exports = class {

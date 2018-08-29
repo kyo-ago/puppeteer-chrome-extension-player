@@ -2,8 +2,9 @@ const path = require('path');
 
 module.exports = {
   entry: {
-    background: './background/index.ts',
-    client: './client/Puppeteer.js',
+    background: './src/background/index.ts',
+      browserAction: './src/browserAction/index.ts',
+      sandbox: './src/sandbox/index.ts',
   },
   output: {
     path: path.resolve(__dirname, 'extension'),

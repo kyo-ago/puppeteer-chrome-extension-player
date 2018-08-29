@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const { Connection } = require('../node_modules/puppeteer-core/lib/Connection');
+const {
+  Connection,
+} = require('../../node_modules/puppeteer-core/lib/Connection');
 const { default: Extension } = require('./Extension');
-const { Browser } = require('../node_modules/puppeteer-core/lib/Browser');
-const { debugError } = require('../node_modules/puppeteer-core/lib/helper');
+const { Browser } = require('../../node_modules/puppeteer-core/lib/Browser');
+const { debugError } = require('../../node_modules/puppeteer-core/lib/helper');
 
 class Launcher {
   /**
@@ -25,12 +27,11 @@ class Launcher {
    */
   static async connect(options) {
     const {
-      tabId = null,
       ignoreHTTPSErrors = false,
       defaultViewport = { width: 800, height: 600 },
       slowMo = 0,
     } = options;
-    let extension = await Extension.create(tabId);
+    let extension = await Extension.create();
     const connection = new Connection('', extension, slowMo);
     const { browserContextIds } = await connection.send(
       'Target.getBrowserContexts'

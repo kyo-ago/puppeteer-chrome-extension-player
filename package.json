@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "description": "",
   "scripts": {
-    "build": "webpack --config webpack.config.js --mode development",
-    "prettier": "prettier --single-quote --trailing-comma es5 --write package.json extension/manifest.json index.js webpack.config.js {client,background}/*",
+    "build": "rm -fr extension && mkdir -p extension && cp src/extension/* extension && webpack --config webpack.config.js --mode development",
+    "prettier": "prettier --single-quote --trailing-comma es5 --write package.json tsconfig.json webpack.config.js src/*/**",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

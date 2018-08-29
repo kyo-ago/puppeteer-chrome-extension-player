@@ -5,6 +5,7 @@
     "module": "ES2015",
     "target": "ES2017",
     "allowJs": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "lib": ["DOM", "ES6"]
   }
 }
