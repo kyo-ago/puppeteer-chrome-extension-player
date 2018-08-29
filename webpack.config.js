@@ -3,8 +3,8 @@ const path = require('path');
 module.exports = {
   entry: {
     background: './src/background/index.ts',
-      browserAction: './src/browserAction/index.ts',
-      sandbox: './src/sandbox/index.ts',
+    browserAction: './src/browserAction/index.ts',
+    sandbox: './src/sandbox/index.js',
   },
   output: {
     path: path.resolve(__dirname, 'extension'),

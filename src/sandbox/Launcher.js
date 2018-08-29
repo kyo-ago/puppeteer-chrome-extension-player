@@ -22,6 +22,13 @@ const { debugError } = require('../../node_modules/puppeteer-core/lib/helper');
 
 class Launcher {
   /**
+   * @param {!(LaunchOptions & ChromeArgOptions & BrowserOptions)=} options
+   * @return {!Promise<!Browser>}
+   */
+  static async launch(options = {}) {
+    return Launcher.connect({});
+  }
+  /**
    * @param {!(BrowserOptions & {browserWSEndpoint: string})=} options
    * @return {!Promise<!Browser>}
    */

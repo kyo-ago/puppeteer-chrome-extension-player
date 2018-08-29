@@ -12,23 +12,22 @@ export default class Extension extends EventEmitter {
     return new Promise(resolve => {
       window.addEventListener('message', event => {
         let throwMessage = (message: any) => {
-          (<any>event.source).postMessage(message, event.origin);
+          (<any>event.source).postMessage(message, '*');
         };
         let data = event.data;
         if (data.type === 'connected') {
-          return resolve(
-            new Extension(
-              (message: string) => {
-                throwMessage({
-                  type: 'send',
-                  message,
-                });
-              },
-              () => {
-                console.log('disconnected');
-              }
-            )
+          extension = new Extension(
+            (message: string) => {
+              throwMessage({
+                type: 'send',
+                message,
+              });
+            },
+            () => {
+              console.log('disconnected');
+            }
           );
+          return resolve(extension);
         }
         if (data.type === 'result') {
           return extension.emit('message', data.result);

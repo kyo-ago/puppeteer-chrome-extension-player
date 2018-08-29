@@ -1,7 +1,7 @@
 let tabId: number, port: chrome.runtime.Port;
 window.addEventListener('message', async event => {
   let toSandbox = (message: any) => {
-    (<any>event.source).postMessage(message, event.origin);
+    (<any>event.source).postMessage(message, '*');
   };
 
   if (event.data.type === 'connect') {
@@ -47,3 +47,6 @@ window.addEventListener('message', async event => {
     port.postMessage({ type: 'send', message: event.data.message });
   }
 });
+window.onload = () => {
+  document.body.insertAdjacentText('beforeend', 'OK');
+};
