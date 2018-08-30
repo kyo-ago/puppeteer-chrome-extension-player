@@ -25,37 +25,38 @@ interface TargetInfo {
   faviconUrl?: string;
 }
 
+interface Debuggee {
+  /** Optional. The id of the tab which you intend to debug.  */
+  tabId?: number;
+  /**
+   * Optional.
+   * Since Chrome 27.
+   * The id of the extension which you intend to debug. Attaching to an extension background page is only possible when 'silent-debugger-extension-api' flag is enabled on the target browser.
+   */
+  extensionId?: string;
+  /**
+   * Optional.
+   * Since Chrome 28.
+   * The opaque id of the debug target.
+   */
+  targetId?: string;
+}
+
 class Background {
   private sessionId = 0;
   private targetInfo: TargetInfo[] = [];
-  constructor(
-    private debuggee: { tabId: number },
-    private onTarget: (method: string, targetInfo: TargetInfo) => void
-  ) {}
+  private onTarget: (method: string, targetInfo: TargetInfo) => void;
+  private onDetachListener: Function | null = null;
 
-  static create(
-    tabId: number,
-    onTarget: (method: string, targetInfo: TargetInfo) => void,
-    onEvent: (method: string, params: Object | null) => void,
-    onDetach: (reason: string) => void
-  ): Promise<Background> {
+  constructor(private debuggee: Debuggee) {}
+
+  static async create(tabId: number): Promise<Background> {
+    let debuggee = await Background.attach({ tabId });
+    return new Background(debuggee);
+  }
+
+  static attach(debuggee: Debuggee) {
     return new Promise((resolve, reject) => {
-      chrome.debugger.onEvent.addListener((source, method, params) => {
-        console.log('onEvent', source, method, params);
-        if (tabId !== source.tabId) {
-          return;
-        }
-        onEvent(method, params);
-      });
-      chrome.debugger.onDetach.addListener((source, reason) => {
-        console.log('onDetach', source, reason);
-        if (tabId !== source.tabId) {
-          return;
-        }
-        onDetach(reason);
-      });
-
-      let debuggee = { tabId };
       chrome.debugger.attach(debuggee, '1.3', () => {
         if (chrome.runtime.lastError) {
           if (
@@ -63,11 +64,22 @@ class Background {
               /Another debugger is already attached/
             )
           ) {
-            return resolve(new Background(debuggee, onTarget));
+            return resolve(debuggee);
           }
           return reject(chrome.runtime.lastError);
         }
-        resolve(new Background(debuggee, onTarget));
+        resolve(debuggee);
+      });
+    });
+  }
+
+  static detach(debuggee: Debuggee) {
+    return new Promise((resolve, reject) => {
+      chrome.debugger.detach(debuggee, () => {
+        if (chrome.runtime.lastError) {
+          return reject(chrome.runtime.lastError);
+        }
+        resolve();
       });
     });
   }
@@ -90,12 +102,33 @@ class Background {
     return this.sendMethod(id, method, params);
   }
 
-  close() {
-    chrome.debugger.detach(this.debuggee, () => {
-      if (chrome.runtime.lastError) {
-        throw chrome.runtime.lastError;
+  bindTarget(callback: (method: string, targetInfo: TargetInfo) => void) {
+    this.onTarget = callback;
+  }
+
+  bindEvent(callback: (method: string, params: Object | null) => void) {
+    chrome.debugger.onEvent.addListener((source, method, params) => {
+      console.log('onEvent', source, method, params);
+      if (!this.equalsDebuggee(source)) {
+        return;
       }
+      callback(method, params);
     });
+  }
+
+  bindDetach(onDetach: (reason: string) => void) {
+    this.onDetachListener = ((source: any, reason: string) => {
+      console.log('onDetach', source, reason);
+      if (!this.equalsDebuggee(source)) {
+        return;
+      }
+      onDetach(reason);
+    }).bind(this);
+    this.detachAddListener();
+  }
+
+  close() {
+    return Background.detach(this.debuggee);
   }
 
   private async setDiscoverTargets(id: string, method: string, params: any) {
@@ -109,6 +142,12 @@ class Background {
   private async attachToTarget(id: string, method: string, params: any) {
     await this.promisedTimeout();
     await this.checkTargets();
+    this.detachRemoveListener();
+
+    await Background.detach(this.debuggee);
+    let debuggee = await Background.attach({ targetId: params.targetId });
+    this.debuggee = debuggee;
+
     let result = {
       id,
       result: {
@@ -191,44 +230,72 @@ class Background {
   private promisedTimeout(time = 0) {
     return new Promise(resolve => setTimeout(resolve, time));
   }
+
+  private equalsDebuggee(debuggee: Debuggee): boolean {
+    if (this.debuggee.tabId && debuggee.tabId) {
+      return this.debuggee.tabId === debuggee.tabId;
+    }
+    if (this.debuggee.extensionId && debuggee.extensionId) {
+      return this.debuggee.extensionId === debuggee.extensionId;
+    }
+    if (this.debuggee.targetId && debuggee.targetId) {
+      return this.debuggee.targetId === debuggee.targetId;
+    }
+    return false;
+  }
+
+  private detachAddListener() {
+    if (!this.onDetachListener) {
+      return;
+    }
+    chrome.debugger.onDetach.addListener(<any>this.onDetachListener);
+  }
+
+  private detachRemoveListener() {
+    if (!this.onDetachListener) {
+      return;
+    }
+    chrome.debugger.onDetach.removeListener(<any>this.onDetachListener);
+  }
 }
 
 chrome.runtime.onConnect.addListener((port: chrome.runtime.Port) => {
   let background: Background;
   port.onMessage.addListener(async msg => {
     if (msg.type === 'create') {
-      background = await Background.create(
-        msg.tabId,
-        (method: string, targetInfo: TargetInfo) => {
-          port.postMessage({
-            type: 'result',
-            result: JSON.stringify({
-              method,
-              params: {
-                targetInfo: {
-                  ...targetInfo,
-                  targetId: targetInfo.id,
-                },
+      background = await Background.create(msg.tabId).catch(error => {
+        alert(error.message);
+        return Promise.reject(error);
+      });
+      background.bindTarget((method: string, targetInfo: TargetInfo) => {
+        port.postMessage({
+          type: 'result',
+          result: JSON.stringify({
+            method,
+            params: {
+              targetInfo: {
+                ...targetInfo,
+                targetId: targetInfo.id,
               },
-            }),
-          });
-        },
-        (method: string, params: Object | null) => {
-          port.postMessage({
-            type: 'onEvent',
-            result: JSON.stringify({
-              method,
-              params,
-            }),
-          });
-        },
-        (reason: string) => {
-          port.postMessage({
-            type: 'disconnect',
-            reason,
-          });
-        }
-      );
+            },
+          }),
+        });
+      });
+      background.bindEvent((method: string, params: Object | null) => {
+        port.postMessage({
+          type: 'onEvent',
+          result: JSON.stringify({
+            method,
+            params,
+          }),
+        });
+      });
+      background.bindDetach((reason: string) => {
+        port.postMessage({
+          type: 'disconnect',
+          reason,
+        });
+      });
       port.postMessage({ type: 'created' });
       return;
     }
@@ -247,6 +314,6 @@ chrome.runtime.onConnect.addListener((port: chrome.runtime.Port) => {
   });
 });
 
-chrome.browserAction.onClicked.addListener((tab) => {
-  window.open("browserAction.html", null, "width=420,height=250");
+chrome.browserAction.onClicked.addListener(tab => {
+  window.open('browserAction.html', null, 'width=420,height=250');
 });

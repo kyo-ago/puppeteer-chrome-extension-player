@@ -7,8 +7,6 @@
     "scripts": ["background.js"],
     "persistent": false
   },
-  "browser_action": {
-  },
   "sandbox": {
     "pages": ["sandbox.html"]
   },

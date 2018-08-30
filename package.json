@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "build": "rm -fr extension && mkdir -p extension && cp src/extension/* extension && webpack --config webpack.config.js --mode development",
-    "prettier": "prettier --single-quote --trailing-comma es5 --write package.json tsconfig.json webpack.config.js src/*/**",
+    "prettier": "prettier --single-quote --trailing-comma es5 --write package.json tsconfig.json webpack.config.js src/*/**.{ts,js,css,json}",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
