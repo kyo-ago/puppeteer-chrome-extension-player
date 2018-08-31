@@ -1,7 +1,7 @@
 {
   "name": "puppeteer-chrome-extension-player",
   "description": "puppeteer-chrome-extension-player",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "permissions": ["debugger"],
   "background": {
     "scripts": ["background.js"],

@@ -7,6 +7,9 @@ body,
 iframe {
   height: 100%;
 }
+iframe {
+  width: 100%;
+}
 textarea {
   height: 80%;
   width: 100%;
