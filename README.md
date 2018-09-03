@@ -4,9 +4,14 @@ Puppeteer API on the chrome extension.
 
 ![](img/readme.png)
 
-# Install
+## Install
 
 [puppeteer\-chrome\-extension\-player \- Chrome Web Store](https://chrome.google.com/webstore/detail/puppeteer-chrome-extensio/lllgpibegjejjepmpmmhhhnkdnpnchfb)
+
+## Todo
+
+ - [ ] Save screenshot.
+ - [ ] Save PDF.
 
 ## License
 
